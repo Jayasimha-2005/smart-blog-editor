@@ -37,7 +37,7 @@ git push origin main
 2. Find your service: `smart-blog-editor`
 3. Click **"Manual Deploy"** → **"Deploy latest commit"**
 4. Wait 2-3 minutes
-5. Verify: https://smart-blog-editor.onrender.com/health
+5. Verify: https://smart-blog-editor-2yfb.onrender.com/health
 
 ### 3️⃣ Deploy Frontend on Vercel
 
@@ -49,7 +49,7 @@ git push origin main
    - **Framework:** Vite
    - **Environment Variable:**
      ```
-     VITE_API_URL = https://smart-blog-editor.onrender.com
+     VITE_API_URL = https://smart-blog-editor-2yfb.onrender.com
      ```
 5. Click **"Deploy"**
 6. Wait 2-3 minutes
@@ -77,8 +77,8 @@ You now have a **production-grade full-stack SaaS** application live on the inte
 
 **Live URLs:**
 - 🎨 Frontend: https://smart-blog-editor.vercel.app
-- 🔧 Backend: https://smart-blog-editor.onrender.com
-- 📚 API Docs: https://smart-blog-editor.onrender.com/docs
+- 🔧 Backend: https://smart-blog-editor-2yfb.onrender.com
+- 📚 API Docs: https://smart-blog-editor-2yfb.onrender.com/docs
 
 ---
 

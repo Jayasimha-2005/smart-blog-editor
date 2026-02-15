@@ -2,7 +2,7 @@
 
 ## 📋 Prerequisites Checklist
 
-✅ Backend deployed on Render: https://smart-blog-editor.onrender.com  
+✅ Backend deployed on Render: https://smart-blog-editor-2yfb.onrender.com  
 ✅ Frontend code updated with environment variables  
 ✅ Backend CORS configured for Vercel  
 ✅ Git repository ready: https://github.com/Jayasimha-2005/smart-blog-editor
@@ -29,11 +29,11 @@ git push origin main
 ### 🌐 STEP 2: Deploy Backend on Render
 
 **✅ Already Done!** Your backend is live at:  
-`https://smart-blog-editor.onrender.com`
+`https://smart-blog-editor-2yfb.onrender.com`
 
 **Verify it's working:**
 ```bash
-curl https://smart-blog-editor.onrender.com/health
+curl https://smart-blog-editor-2yfb.onrender.com/health
 ```
 
 Expected response:
@@ -72,7 +72,7 @@ Click **"Environment Variables"** section:
 
 ```
 Key: VITE_API_URL
-Value: https://smart-blog-editor.onrender.com
+Value: https://smart-blog-editor-2yfb.onrender.com
 ```
 
 **Environment:** Production, Preview, Development (select all)
@@ -158,7 +158,7 @@ Then redeploy backend on Render.
 ### Issue: "Network Error" in frontend
 
 **Solution:**
-- Check backend is running: `curl https://smart-blog-editor.onrender.com/health`
+- Check backend is running: `curl https://smart-blog-editor-2yfb.onrender.com/health`
 - Verify CORS settings in backend
 - Check browser console for CORS errors
 
@@ -242,8 +242,8 @@ You've successfully deployed a **production-grade SaaS application**.
 
 **Live URLs:**
 - Frontend: https://smart-blog-editor.vercel.app
-- Backend: https://smart-blog-editor.onrender.com
-- API Docs: https://smart-blog-editor.onrender.com/docs
+- Backend: https://smart-blog-editor-2yfb.onrender.com
+- API Docs: https://smart-blog-editor-2yfb.onrender.com/docs
 
 ---
 
