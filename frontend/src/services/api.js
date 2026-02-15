@@ -69,4 +69,11 @@ export const postsAPI = {
     api.post(`/api/posts/${id}/publish`),
 };
 
+// AI API
+export const aiAPI = {
+  // Generate AI content (summary or grammar fix)
+  generate: (content, type) => 
+    api.post('/api/ai/generate', { content, type }),
+};
+
 export default api;

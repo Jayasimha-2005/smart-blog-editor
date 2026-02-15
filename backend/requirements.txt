@@ -21,6 +21,7 @@ email-validator==2.1.0
 
 # AI Integration
 google-generativeai==0.3.2
+aiohttp==3.9.1
 
 # Additional
 pymongo==4.6.1

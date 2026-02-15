@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -9,10 +9,12 @@ import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $getRoot, $createParagraphNode, $createTextNode } from 'lexical';
 import useEditorStore from '../store/editorStore';
 import useAutoSave from '../hooks/useAutoSave';
 import { postsAPI } from '../services/api';
 import Toolbar from './Toolbar';
+import AIButton from './AIButton';
 
 const theme = {
   paragraph: 'editor-paragraph',
@@ -59,6 +61,54 @@ function InitialContentPlugin({ content }) {
   }, [content, editor]);
 
   return null;
+}
+
+// Wrapper component to provide editor access to AIButton
+function AIButtonWrapper() {
+  const [editor] = useLexicalComposerContext();
+
+  // Extract plain text from Lexical editor
+  const extractPlainText = () => {
+    let text = '';
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      text = root.getTextContent();
+    });
+    return text;
+  };
+
+  // Insert AI-generated text into editor
+  const insertText = (text) => {
+    editor.update(() => {
+      const root = $getRoot();
+      
+      // Create new paragraph with the AI-generated text
+      const paragraph = $createParagraphNode();
+      
+      // Split text by newlines and create text nodes
+      const lines = text.split('\n');
+      lines.forEach((line, index) => {
+        const textNode = $createTextNode(line);
+        paragraph.append(textNode);
+        
+        // Add line breaks between lines (but not after the last one)
+        if (index < lines.length - 1) {
+          const lineBreak = $createTextNode('\n');
+          paragraph.append(lineBreak);
+        }
+      });
+      
+      // Append to the end of the document
+      root.append(paragraph);
+    });
+  };
+
+  return (
+    <AIButton 
+      extractPlainText={extractPlainText}
+      onInsertText={insertText}
+    />
+  );
 }
 
 function Editor() {
@@ -142,6 +192,13 @@ function Editor() {
       <LexicalComposer initialConfig={initialConfig} key={currentPost.id}>
         <div className="flex-1 flex flex-col">
           <Toolbar />
+          
+          {/* AI Tools Bar */}
+          <div className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex items-center justify-between">
+            <div className="text-xs text-gray-500 font-medium">AI Tools</div>
+            <AIButtonWrapper />
+          </div>
+          
           <div className="flex-1 overflow-auto">
             <RichTextPlugin
               contentEditable={
