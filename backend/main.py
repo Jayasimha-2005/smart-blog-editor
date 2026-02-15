@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from .core.config import settings
 from .db.database import connect_to_mongo, close_mongo_connection
-from .routes import auth
+from .routes import auth, posts
 
 
 @asynccontextmanager
@@ -42,6 +42,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth.router)
+app.include_router(posts.router)
 
 
 @app.get("/")
