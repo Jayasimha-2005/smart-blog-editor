@@ -10,6 +10,7 @@ from backend.dependencies.auth_dependency import get_current_user
 from backend.core.config import settings
 import aiohttp
 import asyncio
+import traceback
 
 
 router = APIRouter(prefix="/api/ai", tags=["AI"])
@@ -44,7 +45,10 @@ async def generate_ai_content(
     """
     try:
         if not settings.GEMINI_API_KEY:
+            print("ERROR: GEMINI_API_KEY not configured")
             raise HTTPException(status_code=500, detail="Gemini API key not configured")
+        
+        print(f"AI Request: type={request.type}, content_length={len(request.content)}")
         
         # Build prompt
         if request.type == "summary":
@@ -78,38 +82,53 @@ Corrected text:"""
             }
         }
         
-        # Make request to Gemini API (using Gemini 2.5 Flash - latest model)
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+        # Make request to Gemini API (using Gemini 1.5 Flash - stable model)
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+        
+        print(f"Calling Gemini API: {url[:100]}...")
         
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=payload) as response:
+                response_text = await response.text()
+                
                 if response.status != 200:
-                    error_text = await response.text()
+                    print(f"Gemini API Error {response.status}: {response_text}")
                     raise HTTPException(
                         status_code=500,
-                        detail=f"Gemini API error: {error_text}"
+                        detail=f"Gemini API error ({response.status}): {response_text[:200]}"
                     )
                 
-                data = await response.json()
+                try:
+                    data = await response.json()
+                except Exception as json_err:
+                    print(f"JSON Parse Error: {json_err}, Response: {response_text}")
+                    raise HTTPException(
+                        status_code=500,
+                        detail=f"Failed to parse API response: {str(json_err)}"
+                    )
                 
                 # Extract generated text
                 try:
                     result = data["candidates"][0]["content"]["parts"][0]["text"]
+                    print(f"AI Generation Success: {len(result)} chars")
                     return AIGenerateResponse(
                         result=result.strip(),
                         type=request.type
                     )
                 except (KeyError, IndexError) as e:
+                    print(f"Response Format Error: {e}, Data: {str(data)[:500]}")
                     raise HTTPException(
                         status_code=500,
-                        detail=f"Unexpected API response format: {str(e)}"
+                        detail=f"Unexpected API response format: {str(e)}, Response: {str(data)[:200]}"
                     )
         
     except HTTPException:
         raise
     except Exception as e:
+        print(f"UNEXPECTED ERROR in AI endpoint: {type(e).__name__}: {str(e)}")
+        traceback.print_exc()
         raise HTTPException(
             status_code=500,
-            detail=f"AI generation failed: {str(e)}"
+            detail=f"AI generation failed: {type(e).__name__}: {str(e)}"
         )
 
