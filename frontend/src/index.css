@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  @apply bg-gray-50;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Lexical Editor Styles */
+.editor-container {
+  @apply bg-white rounded-lg;
+}
+
+.editor-input {
+  @apply min-h-[500px] outline-none px-6 py-4;
+}
+
+.editor-paragraph {
+  @apply mb-2;
+}
+
+.editor-heading-h1 {
+  @apply text-3xl font-bold mb-4 mt-6;
+}
+
+.editor-heading-h2 {
+  @apply text-2xl font-bold mb-3 mt-5;
+}
+
+.editor-heading-h3 {
+  @apply text-xl font-bold mb-2 mt-4;
+}
+
+.editor-list-ol {
+  @apply list-decimal ml-6 mb-2;
+}
+
+.editor-list-ul {
+  @apply list-disc ml-6 mb-2;
+}
+
+.editor-listitem {
+  @apply mb-1;
+}
+
+.editor-text-bold {
+  @apply font-bold;
+}
+
+.editor-text-italic {
+  @apply italic;
+}
+
+.editor-text-underline {
+  @apply underline;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
