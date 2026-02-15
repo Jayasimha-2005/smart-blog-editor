@@ -1,8 +1,9 @@
 import { Plus, FileText } from 'lucide-react';
 import useEditorStore from '../store/editorStore';
 import { postsAPI } from '../services/api';
+import { formatRelativeTime } from '../utils/time';
 
-function DraftList() {
+function DraftList({ onSelectPost }) {
   const posts = useEditorStore((state) => state.posts);
   const currentPost = useEditorStore((state) => state.currentPost);
   const setCurrentPost = useEditorStore((state) => state.setCurrentPost);
@@ -22,30 +23,19 @@ function DraftList() {
 
   const handleSelectPost = (post) => {
     setCurrentPost(post);
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
+    // Close mobile drawer if callback provided
+    if (onSelectPost) {
+      onSelectPost();
+    }
   };
 
   return (
     <>
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200 bg-gray-50">
         <button
           onClick={handleCreateNew}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 ease-in-out flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 ease-in-out flex items-center justify-center gap-2 shadow-sm hover:shadow-md active:scale-95 min-h-[44px]"
         >
           <Plus size={20} />
           New Post
@@ -57,8 +47,8 @@ function DraftList() {
         {posts.length === 0 ? (
           <div className="p-6 text-center text-gray-500">
             <FileText size={48} className="mx-auto mb-3 text-gray-300" />
-            <p className="text-sm">No posts yet</p>
-            <p className="text-xs mt-1 text-gray-400">Create your first post</p>
+            <p className="text-sm font-medium">No posts yet</p>
+            <p className="text-xs mt-1 text-gray-400">Create your first post to start writing</p>
           </div>
         ) : (
           <div className="p-4 space-y-3">
@@ -66,10 +56,10 @@ function DraftList() {
               <button
                 key={post.id}
                 onClick={() => handleSelectPost(post)}
-                className={`w-full text-left p-4 rounded-xl transition-all duration-200 ${
+                className={`w-full text-left p-5 rounded-xl transition-all duration-200 min-h-[60px] ${
                   currentPost?.id === post.id
-                    ? 'bg-blue-50 border border-blue-400 shadow-sm'
-                    : 'hover:bg-gray-100 border border-transparent'
+                    ? 'bg-blue-50 border-2 border-blue-400 shadow-md hover:shadow-lg'
+                    : 'hover:bg-gray-50 hover:shadow-md border-2 border-transparent hover:-translate-y-0.5'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -78,9 +68,9 @@ function DraftList() {
                       {post.title || 'Untitled'}
                     </h3>
                     <div className="flex items-center gap-2 text-xs">
-                      <span className="text-gray-500">{formatDate(post.updated_at)}</span>
+                      <span className="text-gray-500">{formatRelativeTime(post.updated_at)}</span>
                       <span
-                        className={`px-2 py-1 rounded-full font-medium ${
+                        className={`px-2.5 py-1 rounded-full font-medium ${
                           post.status === 'published'
                             ? 'bg-green-100 text-green-700'
                             : 'bg-gray-200 text-gray-600'

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -9,11 +9,11 @@ import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getRoot, $createParagraphNode, $createTextNode } from 'lexical';
+import { $getRoot, $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection } from 'lexical';
 import useEditorStore from '../store/editorStore';
 import useAutoSave from '../hooks/useAutoSave';
 import { postsAPI } from '../services/api';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, X, Check } from 'lucide-react';
 import Toolbar from './Toolbar';
 import AIButton from './AIButton';
 
@@ -68,7 +68,7 @@ function InitialContentPlugin({ content }) {
 }
 
 // Wrapper component to provide editor access to AIButton
-function AIButtonWrapper() {
+function AIButtonWrapper({ onAIResult }) {
   const [editor] = useLexicalComposerContext();
 
   // Extract plain text from Lexical editor
@@ -81,37 +81,101 @@ function AIButtonWrapper() {
     return text;
   };
 
-  // Insert AI-generated text into editor
-  const insertText = (text) => {
-    editor.update(() => {
-      const root = $getRoot();
-      
-      // Create new paragraph with the AI-generated text
-      const paragraph = $createParagraphNode();
-      
-      // Split text by newlines and create text nodes
-      const lines = text.split('\n');
-      lines.forEach((line, index) => {
-        const textNode = $createTextNode(line);
-        paragraph.append(textNode);
-        
-        // Add line breaks between lines (but not after the last one)
-        if (index < lines.length - 1) {
-          const lineBreak = $createTextNode('\n');
-          paragraph.append(lineBreak);
-        }
-      });
-      
-      // Append to the end of the document
-      root.append(paragraph);
-    });
-  };
-
   return (
     <AIButton 
       extractPlainText={extractPlainText}
-      onInsertText={insertText}
+      onAIResult={onAIResult}
     />
+  );
+}
+
+// AI Result Card Component
+function AIResultCard({ result, onInsert, onDiscard }) {
+  if (!result) return null;
+
+  const isSummary = result.type === 'summary';
+  const title = isSummary ? 'AI Summary' : 'AI Grammar Suggestion';
+  const icon = isSummary ? (
+    <Sparkles size={18} className="text-purple-600" />
+  ) : (
+    <Check size={18} className="text-blue-600" />
+  );
+
+  // Distinctive styling for Summary vs Grammar
+  const cardStyle = isSummary
+    ? 'bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300'
+    : 'bg-white border-2 border-blue-200';
+
+  const buttonStyle = isSummary
+    ? 'bg-purple-600 hover:bg-purple-700'
+    : 'bg-blue-600 hover:bg-blue-700';
+
+  return (
+    <div className="animate-fadeIn mb-6 sm:mb-8">
+      <div className={`${cardStyle} rounded-xl shadow-lg p-4 sm:p-6`}>
+        {/* Card Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            {icon}
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">{title}</h3>
+            {isSummary && (
+              <span className="text-xs font-medium px-2 py-1 rounded-full bg-purple-200 text-purple-800">
+                Full Replace
+              </span>
+            )}
+          </div>
+          <button
+            onClick={onDiscard}
+            className="p-1.5 rounded-lg hover:bg-white/50 transition-all duration-200 active:scale-95"
+            aria-label="Close"
+          >
+            <X size={18} className="text-gray-600" />
+          </button>
+        </div>
+
+        {/* AI Generated Content */}
+        <div className="bg-white rounded-lg p-4 mb-4 max-h-64 overflow-y-auto border border-gray-200 shadow-inner">
+          <p className="text-sm sm:text-base text-gray-800 whitespace-pre-wrap leading-relaxed">
+            {result.content}
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={onInsert}
+            className={`flex-1 flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-white ${buttonStyle} rounded-xl transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 min-h-[44px]`}
+          >
+            <Check size={18} />
+            {isSummary ? 'Replace Document' : 'Insert'}
+          </button>
+          <button
+            onClick={onDiscard}
+            className="flex-1 flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-gray-700 bg-white hover:bg-gray-100 rounded-xl transition-all duration-200 shadow-sm hover:shadow active:scale-95 min-h-[44px]"
+          >
+            <X size={18} />
+            Discard
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Success Banner Component
+function SuccessBanner({ message, onClose }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 3000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-fadeIn">
+      <div className="bg-purple-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3">
+        <Check size={20} className="text-purple-200" />
+        <span className="font-medium">{message}</span>
+      </div>
+    </div>
   );
 }
 
@@ -122,6 +186,12 @@ function Editor() {
   const markAsSaved = useEditorStore((state) => state.markAsSaved);
   const markAsFailed = useEditorStore((state) => state.markAsFailed);
   const hasUnsavedChanges = useEditorStore((state) => state.hasUnsavedChanges);
+  
+  // AI Result State
+  const [aiResult, setAIResult] = useState(null);
+  const [editor, setEditor] = useState(null);
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
+  const [editorContainerRef, setEditorContainerRef] = useState(null);
 
   // Auto-save callback
   const handleAutoSave = async () => {
@@ -161,6 +231,98 @@ function Editor() {
     };
   }, [currentPost?.id, cancelAutoSave]);
 
+  // Clear AI result when switching posts
+  useEffect(() => {
+    setAIResult(null);
+  }, [currentPost?.id]);
+
+  // Handle AI result from AIButton
+  const handleAIResult = (result) => {
+    setAIResult(result);
+  };
+
+  // Insert AI text into editor
+  const handleInsertAIText = () => {
+    if (!editor || !aiResult) return;
+
+    const isSummary = aiResult.type === 'summary';
+
+    editor.update(() => {
+      const selection = $getSelection();
+      const root = $getRoot();
+      
+      if (isSummary) {
+        // SUMMARY: Always replace entire document
+        root.clear();
+        
+        // Split AI content by lines and create paragraphs
+        const lines = aiResult.content.split('\n');
+        
+        lines.forEach((line) => {
+          const paragraph = $createParagraphNode();
+          
+          if (line.trim().length > 0) {
+            const textNode = $createTextNode(line);
+            paragraph.append(textNode);
+          }
+          
+          root.append(paragraph);
+        });
+      } else {
+        // GRAMMAR: Replace selected text if any, otherwise entire document
+        if ($isRangeSelection(selection) && !selection.isCollapsed()) {
+          // Replace selected text only
+          selection.insertText(aiResult.content);
+        } else {
+          // No selection - Replace entire document
+          root.clear();
+          
+          const lines = aiResult.content.split('\n');
+          
+          lines.forEach((line) => {
+            const paragraph = $createParagraphNode();
+            
+            if (line.trim().length > 0) {
+              const textNode = $createTextNode(line);
+              paragraph.append(textNode);
+            }
+            
+            root.append(paragraph);
+          });
+        }
+      }
+    });
+
+    // Special effects for Summary
+    if (isSummary) {
+      // Show success banner
+      setShowSuccessBanner(true);
+      
+      // Add purple glow animation to editor
+      if (editorContainerRef) {
+        editorContainerRef.classList.add('editor-purple-glow');
+        setTimeout(() => {
+          editorContainerRef.classList.remove('editor-purple-glow');
+        }, 2000);
+      }
+
+      // Auto-scroll to top
+      setTimeout(() => {
+        if (editorContainerRef) {
+          editorContainerRef.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+    }
+
+    // Close AI card
+    setAIResult(null);
+  };
+
+  // Discard AI result
+  const handleDiscardAI = () => {
+    setAIResult(null);
+  };
+
   const initialConfig = {
     namespace: 'SmartBlogEditor',
     theme,
@@ -170,9 +332,9 @@ function Editor() {
 
   if (!currentPost) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
-        <div className="text-center text-gray-500">
-          <p className="text-xl font-medium mb-2 text-gray-700">No post selected</p>
+      <div className="flex-1 flex items-center justify-center bg-gray-50 p-6">
+        <div className="text-center text-gray-500 animate-fadeIn">
+          <p className="text-lg sm:text-xl font-medium mb-2 text-gray-700">No post selected</p>
           <p className="text-sm text-gray-500">Select a post or create a new one</p>
         </div>
       </div>
@@ -180,20 +342,70 @@ function Editor() {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
+    <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden animate-fadeIn">
+      {/* Success Banner */}
+      {showSuccessBanner && (
+        <SuccessBanner
+          message="✓ Content summarized successfully"
+          onClose={() => setShowSuccessBanner(false)}
+        />
+      )}
+      
       {/* Lexical Editor */}
       <LexicalComposer initialConfig={initialConfig} key={currentPost.id}>
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Centered Content Wrapper */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="max-w-3xl mx-auto px-8 py-10">
+        <LexicalEditorContent
+          currentPost={currentPost}
+          updateTitle={updateTitle}
+          aiResult={aiResult}
+          onAIResult={handleAIResult}
+          onInsertAI={handleInsertAIText}
+          onDiscardAI={handleDiscardAI}
+          onEditorReady={setEditor}
+          onContainerRef={setEditorContainerRef}
+        />
+      </LexicalComposer>
+    </div>
+  );
+}
+
+// Separate component to access Lexical context
+function LexicalEditorContent({ 
+  currentPost, 
+  updateTitle, 
+  aiResult, 
+  onAIResult, 
+  onInsertAI, 
+  onDiscardAI,
+  onEditorReady,
+  onContainerRef
+}) {
+  const [editor] = useLexicalComposerContext();
+  const containerRef = useRef(null);
+
+  // Pass editor instance to parent
+  useEffect(() => {
+    onEditorReady(editor);
+  }, [editor, onEditorReady]);
+
+  // Pass container ref to parent
+  useEffect(() => {
+    if (containerRef.current) {
+      onContainerRef(containerRef.current);
+    }
+  }, [onContainerRef]);
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Centered Content Wrapper */}
+      <div ref={containerRef} className="flex-1 overflow-y-auto scroll-smooth">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
               {/* Title Input */}
               <input
                 type="text"
                 value={currentPost.title || ''}
                 onChange={(e) => updateTitle(e.target.value)}
                 placeholder="Untitled"
-                className="w-full text-5xl font-bold outline-none mb-8 text-gray-900 placeholder-gray-400 tracking-tight bg-transparent"
+                className="w-full text-3xl sm:text-4xl lg:text-5xl font-bold outline-none mb-6 sm:mb-8 text-gray-900 placeholder-gray-400 tracking-tight bg-transparent"
               />
 
               {/* Toolbar */}
@@ -202,22 +414,29 @@ function Editor() {
               </div>
 
               {/* AI Tools Section */}
-              <div className="flex justify-between items-center bg-gradient-to-r from-purple-50 to-blue-50 px-5 py-3 rounded-xl mb-8 border border-gray-200 shadow-sm">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 bg-gradient-to-r from-purple-50 to-blue-50 px-4 sm:px-5 py-3 sm:py-3 rounded-xl mb-6 sm:mb-8 border border-gray-200 shadow-sm">
                 <div className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                   <Sparkles size={16} className="text-purple-600" />
                   AI Tools
                 </div>
-                <AIButtonWrapper />
+                <AIButtonWrapper onAIResult={onAIResult} />
               </div>
 
+              {/* AI Result Card */}
+              <AIResultCard 
+                result={aiResult} 
+                onInsert={onInsertAI} 
+                onDiscard={onDiscardAI} 
+              />
+
               {/* Editor Content */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 min-h-[500px]">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8 min-h-[400px] sm:min-h-[500px]">
                 <RichTextPlugin
                   contentEditable={
                     <ContentEditable className="editor-input outline-none" />
                   }
                   placeholder={
-                    <div className="absolute text-gray-400 pointer-events-none">
+                    <div className="absolute text-gray-400 pointer-events-none text-base sm:text-lg">
                       Start writing your story...
                     </div>
                   }
@@ -226,8 +445,8 @@ function Editor() {
               </div>
 
               {/* Status Badge */}
-              <div className="mt-6 flex items-center justify-between">
-                <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
+              <div className="mt-4 sm:mt-6 flex items-center justify-between">
+                <span className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium shadow-sm ${
                   currentPost.status === 'published'
                     ? 'bg-green-100 text-green-700'
                     : 'bg-gray-200 text-gray-600'
@@ -243,9 +462,7 @@ function Editor() {
           <OnChangePluginWrapper />
           <InitialContentPlugin content={currentPost.content_json} />
         </div>
-      </LexicalComposer>
-    </div>
-  );
+      );
 }
 
 export default Editor;

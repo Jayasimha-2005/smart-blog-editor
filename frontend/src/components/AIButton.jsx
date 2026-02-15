@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
 import { aiAPI } from '../services/api';
 
-function AIButton({ onInsertText, extractPlainText }) {
+function AIButton({ extractPlainText, onAIResult }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [lastAction, setLastAction] = useState(null);
   const [error, setError] = useState(null);
@@ -24,8 +24,11 @@ function AIButton({ onInsertText, extractPlainText }) {
       const response = await aiAPI.generate(content, type);
       const result = response.data.result;
 
-      // Insert generated text into editor
-      onInsertText(result);
+      // Pass result to parent instead of auto-inserting
+      onAIResult({
+        type,
+        content: result,
+      });
 
       // Show success feedback
       console.log(`AI ${type} generated successfully`);
@@ -39,12 +42,12 @@ function AIButton({ onInsertText, extractPlainText }) {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {/* Generate Summary Button */}
       <button
         onClick={() => handleGenerate('summary')}
         disabled={isGenerating}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 bg-purple-100 hover:bg-purple-200 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow"
+        className="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-purple-700 bg-purple-100 hover:bg-purple-200 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md active:scale-95 min-h-[44px]"
         title="Generate Summary"
       >
         <Sparkles size={16} className={isGenerating && lastAction === 'summary' ? 'animate-pulse' : ''} />
@@ -55,7 +58,7 @@ function AIButton({ onInsertText, extractPlainText }) {
       <button
         onClick={() => handleGenerate('grammar')}
         disabled={isGenerating}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow"
+        className="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md active:scale-95 min-h-[44px]"
         title="Fix Grammar"
       >
         <CheckCircle size={16} className={isGenerating && lastAction === 'grammar' ? 'animate-pulse' : ''} />

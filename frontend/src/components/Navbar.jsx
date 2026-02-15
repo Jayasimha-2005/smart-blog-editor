@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Save, Send, Check, AlertCircle } from 'lucide-react';
+import { LogOut, Save, Send, Check, AlertCircle, Menu, Loader2 } from 'lucide-react';
 import useEditorStore from '../store/editorStore';
 import { postsAPI } from '../services/api';
 import { useState } from 'react';
+import { formatSaveTime } from '../utils/time';
 
-function Navbar() {
+function Navbar({ onMenuClick }) {
   const navigate = useNavigate();
   const currentPost = useEditorStore((state) => state.currentPost);
   const updatePostInList = useEditorStore((state) => state.updatePostInList);
@@ -82,17 +83,7 @@ function Navbar() {
     }
     
     if (lastSavedAt) {
-      const savedTime = new Date(lastSavedAt);
-      const now = new Date();
-      const diffMs = now - savedTime;
-      const diffSecs = Math.floor(diffMs / 1000);
-      const diffMins = Math.floor(diffSecs / 60);
-      
-      let timeText = '';
-      if (diffSecs < 10) timeText = 'just now';
-      else if (diffSecs < 60) timeText = `${diffSecs}s ago`;
-      else if (diffMins < 60) timeText = `${diffMins}m ago`;
-      else timeText = savedTime.toLocaleTimeString();
+      const timeText = formatSaveTime(lastSavedAt);
       
       return {
         text: `Saved ${timeText}`,
@@ -107,9 +98,18 @@ function Navbar() {
   const saveStatus = getSaveStatus();
 
   return (
-    <nav className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm">
-      <div className="flex items-center gap-6">
-        <h1 className="text-lg font-semibold text-gray-900 tracking-wide">Smart Blog Editor</h1>
+    <nav className="h-16 bg-white/90 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 shadow-sm sticky top-0 z-40">
+      <div className="flex items-center gap-3 sm:gap-6">
+        {/* Mobile Menu Button */}
+        <button
+          onClick={onMenuClick}
+          className="md:hidden p-2 rounded-xl hover:bg-gray-100 transition-all duration-200 active:scale-95"
+          aria-label="Open menu"
+        >
+          <Menu size={24} className="text-gray-700" />
+        </button>
+        
+        <h1 className="text-base sm:text-lg font-semibold text-gray-900 tracking-wide">Smart Blog Editor</h1>
         
         {/* Auto-save status indicator */}
         {currentPost && saveStatus && (
@@ -120,37 +120,56 @@ function Navbar() {
         )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {currentPost && (
           <>
+            {/* Save Button - Hidden on small mobile */}
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-200 disabled:opacity-50 shadow-sm hover:shadow"
+              className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 disabled:opacity-50 shadow-sm hover:shadow-md active:scale-95"
             >
               <Save size={16} />
-              {isSaving ? 'Saving...' : 'Save'}
+              <span className="hidden lg:inline">{isSaving ? 'Saving...' : 'Save'}</span>
             </button>
 
-            {currentPost.status === 'draft' && (
-              <button
-                onClick={handlePublish}
-                disabled={isPublishing}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-all duration-200 disabled:opacity-50 shadow-sm hover:shadow"
-              >
-                <Send size={16} />
-                {isPublishing ? 'Publishing...' : 'Publish'}
-              </button>
-            )}
+            {/* Publish Button - Context Aware */}
+            <button
+              onClick={handlePublish}
+              disabled={isPublishing || currentPost.status === 'published'}
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
+                currentPost.status === 'published'
+                  ? 'bg-green-100 text-green-700 cursor-default'
+                  : 'bg-green-600 text-white hover:bg-green-700 active:scale-95 shadow-sm hover:shadow-md disabled:opacity-50'
+              }`}
+            >
+              {isPublishing ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span className="hidden sm:inline">Publishing...</span>
+                </>
+              ) : currentPost.status === 'published' ? (
+                <>
+                  <Check size={16} />
+                  <span className="hidden sm:inline">Published</span>
+                </>
+              ) : (
+                <>
+                  <Send size={16} />
+                  <span className="hidden sm:inline">Publish</span>
+                </>
+              )}
+            </button>
           </>
         )}
 
+        {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 active:scale-95"
         >
           <LogOut size={16} />
-          Logout
+          <span className="hidden sm:inline">Logout</span>
         </button>
       </div>
     </nav>
