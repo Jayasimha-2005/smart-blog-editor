@@ -82,8 +82,8 @@ Corrected text:"""
             }
         }
         
-        # Make request to Gemini API (using Gemini 1.5 Flash - stable model)
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+        # Make request to Gemini API (using Gemini 2.5 Flash - latest working model)
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
         
         print(f"Calling Gemini API: {url[:100]}...")
         
