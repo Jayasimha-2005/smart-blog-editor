@@ -23,39 +23,44 @@ code {
 }
 
 .editor-input {
-  @apply min-h-[500px] outline-none px-6 py-4;
+  @apply min-h-[450px] outline-none text-gray-800 text-lg leading-relaxed;
+  font-family: 'Georgia', 'Cambria', 'Times New Roman', serif;
+  line-height: 1.8;
 }
 
 .editor-paragraph {
-  @apply mb-2;
+  @apply mb-4 text-gray-800;
 }
 
 .editor-heading-h1 {
-  @apply text-3xl font-bold mb-4 mt-6;
+  @apply text-4xl font-bold mb-6 mt-8 text-gray-900;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
 .editor-heading-h2 {
-  @apply text-2xl font-bold mb-3 mt-5;
+  @apply text-3xl font-bold mb-5 mt-7 text-gray-900;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
 .editor-heading-h3 {
-  @apply text-xl font-bold mb-2 mt-4;
+  @apply text-2xl font-bold mb-4 mt-6 text-gray-900;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
 .editor-list-ol {
-  @apply list-decimal ml-6 mb-2;
+  @apply list-decimal ml-8 mb-4 space-y-2 text-gray-800;
 }
 
 .editor-list-ul {
-  @apply list-disc ml-6 mb-2;
+  @apply list-disc ml-8 mb-4 space-y-2 text-gray-800;
 }
 
 .editor-listitem {
-  @apply mb-1;
+  @apply mb-2 pl-2;
 }
 
 .editor-text-bold {
-  @apply font-bold;
+  @apply font-bold text-gray-900;
 }
 
 .editor-text-italic {
@@ -63,7 +68,7 @@ code {
 }
 
 .editor-text-underline {
-  @apply underline;
+  @apply underline decoration-2;
 }
 
 /* Scrollbar styling */

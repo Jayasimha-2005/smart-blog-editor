@@ -8,7 +8,9 @@ import { postsAPI } from '../services/api';
 
 function Dashboard() {
   const navigate = useNavigate();
-  const { setPosts, setCurrentPost, setLoading } = useEditorStore();
+  const setPosts = useEditorStore((state) => state.setPosts);
+  const setCurrentPost = useEditorStore((state) => state.setCurrentPost);
+  const setLoading = useEditorStore((state) => state.setLoading);
 
   useEffect(() => {
     // Check if user is authenticated
@@ -44,10 +46,15 @@ function Dashboard() {
   }, [navigate, setPosts, setCurrentPost, setLoading]);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      <Navbar />
-      <div className="flex-1 flex overflow-hidden">
+    <div className="h-screen flex bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-72 bg-white border-r border-gray-200 flex flex-col shadow-sm">
         <DraftList />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        <Navbar />
         <Editor />
       </div>
     </div>

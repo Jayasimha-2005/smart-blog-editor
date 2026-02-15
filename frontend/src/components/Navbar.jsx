@@ -107,13 +107,13 @@ function Navbar() {
   const saveStatus = getSaveStatus();
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <h1 className="text-xl font-bold text-gray-900">Smart Blog Editor</h1>
+    <nav className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm">
+      <div className="flex items-center gap-6">
+        <h1 className="text-lg font-semibold text-gray-900 tracking-wide">Smart Blog Editor</h1>
         
         {/* Auto-save status indicator */}
         {currentPost && saveStatus && (
-          <div className={`flex items-center gap-1.5 text-xs font-medium ${saveStatus.color}`}>
+          <div className={`flex items-center gap-1.5 text-sm font-medium ${saveStatus.color}`}>
             {saveStatus.icon}
             <span>{saveStatus.text}</span>
           </div>
@@ -126,7 +126,7 @@ function Navbar() {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-200 disabled:opacity-50 shadow-sm hover:shadow"
             >
               <Save size={16} />
               {isSaving ? 'Saving...' : 'Save'}
@@ -136,7 +136,7 @@ function Navbar() {
               <button
                 onClick={handlePublish}
                 disabled={isPublishing}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-all duration-200 disabled:opacity-50 shadow-sm hover:shadow"
               >
                 <Send size={16} />
                 {isPublishing ? 'Publishing...' : 'Publish'}
@@ -147,7 +147,7 @@ function Navbar() {
 
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
         >
           <LogOut size={16} />
           Logout

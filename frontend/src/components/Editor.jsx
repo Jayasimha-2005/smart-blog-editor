@@ -13,6 +13,7 @@ import { $getRoot, $createParagraphNode, $createTextNode } from 'lexical';
 import useEditorStore from '../store/editorStore';
 import useAutoSave from '../hooks/useAutoSave';
 import { postsAPI } from '../services/api';
+import { Sparkles } from 'lucide-react';
 import Toolbar from './Toolbar';
 import AIButton from './AIButton';
 
@@ -52,11 +53,14 @@ function OnChangePluginWrapper() {
 // Plugin to initialize editor with existing content
 function InitialContentPlugin({ content }) {
   const [editor] = useLexicalComposerContext();
+  const isInitialized = useRef(false);
 
   useEffect(() => {
-    if (content && Object.keys(content).length > 0) {
+    // Only initialize once when component mounts
+    if (!isInitialized.current && content && Object.keys(content).length > 0) {
       const editorState = editor.parseEditorState(content);
       editor.setEditorState(editorState);
+      isInitialized.current = true;
     }
   }, [content, editor]);
 
@@ -168,61 +172,78 @@ function Editor() {
     return (
       <div className="flex-1 flex items-center justify-center bg-gray-50">
         <div className="text-center text-gray-500">
-          <p className="text-lg mb-2">No post selected</p>
-          <p className="text-sm">Select a post or create a new one</p>
+          <p className="text-xl font-medium mb-2 text-gray-700">No post selected</p>
+          <p className="text-sm text-gray-500">Select a post or create a new one</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-white">
-      {/* Title Input */}
-      <div className="border-b border-gray-200 px-6 py-4">
-        <input
-          type="text"
-          value={currentPost.title || ''}
-          onChange={(e) => updateTitle(e.target.value)}
-          placeholder="Untitled"
-          className="w-full text-4xl font-bold outline-none placeholder-gray-300"
-        />
-      </div>
-
+    <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
       {/* Lexical Editor */}
       <LexicalComposer initialConfig={initialConfig} key={currentPost.id}>
-        <div className="flex-1 flex flex-col">
-          <Toolbar />
-          
-          {/* AI Tools Bar */}
-          <div className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex items-center justify-between">
-            <div className="text-xs text-gray-500 font-medium">AI Tools</div>
-            <AIButtonWrapper />
-          </div>
-          
-          <div className="flex-1 overflow-auto">
-            <RichTextPlugin
-              contentEditable={
-                <ContentEditable className="editor-input" />
-              }
-              placeholder={
-                <div className="absolute top-4 left-6 text-gray-400 pointer-events-none">
-                  Start writing...
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Centered Content Wrapper */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-3xl mx-auto px-8 py-10">
+              {/* Title Input */}
+              <input
+                type="text"
+                value={currentPost.title || ''}
+                onChange={(e) => updateTitle(e.target.value)}
+                placeholder="Untitled"
+                className="w-full text-5xl font-bold outline-none mb-8 text-gray-900 placeholder-gray-400 tracking-tight bg-transparent"
+              />
+
+              {/* Toolbar */}
+              <div className="mb-6">
+                <Toolbar />
+              </div>
+
+              {/* AI Tools Section */}
+              <div className="flex justify-between items-center bg-gradient-to-r from-purple-50 to-blue-50 px-5 py-3 rounded-xl mb-8 border border-gray-200 shadow-sm">
+                <div className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Sparkles size={16} className="text-purple-600" />
+                  AI Tools
                 </div>
-              }
-              ErrorBoundary={LexicalErrorBoundary}
-            />
+                <AIButtonWrapper />
+              </div>
+
+              {/* Editor Content */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 min-h-[500px]">
+                <RichTextPlugin
+                  contentEditable={
+                    <ContentEditable className="editor-input outline-none" />
+                  }
+                  placeholder={
+                    <div className="absolute text-gray-400 pointer-events-none">
+                      Start writing your story...
+                    </div>
+                  }
+                  ErrorBoundary={LexicalErrorBoundary}
+                />
+              </div>
+
+              {/* Status Badge */}
+              <div className="mt-6 flex items-center justify-between">
+                <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
+                  currentPost.status === 'published'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-gray-200 text-gray-600'
+                }`}>
+                  {currentPost.status === 'published' ? '✅ Published' : '📝 Draft'}
+                </span>
+              </div>
+            </div>
           </div>
+          
           <HistoryPlugin />
           <ListPlugin />
           <OnChangePluginWrapper />
           <InitialContentPlugin content={currentPost.content_json} />
         </div>
       </LexicalComposer>
-
-      {/* Status Bar */}
-      <div className="border-t border-gray-200 px-6 py-2 text-sm text-gray-500">
-        Status: {currentPost.status === 'published' ? '✅ Published' : '📝 Draft'}
-      </div>
     </div>
   );
 }

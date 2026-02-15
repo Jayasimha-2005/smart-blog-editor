@@ -79,11 +79,11 @@ function Toolbar() {
   };
 
   return (
-    <div className="bg-white border-b border-gray-200 px-4 py-2 flex items-center gap-1 flex-wrap">
+    <div className="flex gap-2 items-center border-b border-gray-200 pb-4 flex-wrap">
       <button
         onClick={() => formatText('bold')}
-        className={`p-2 rounded hover:bg-gray-100 transition ${
-          isBold ? 'bg-gray-200' : ''
+        className={`p-2.5 rounded-lg transition-all duration-200 ${
+          isBold ? 'bg-gray-200 shadow-sm' : 'hover:bg-gray-100'
         }`}
         title="Bold (Ctrl+B)"
         type="button"
@@ -93,8 +93,8 @@ function Toolbar() {
 
       <button
         onClick={() => formatText('italic')}
-        className={`p-2 rounded hover:bg-gray-100 transition ${
-          isItalic ? 'bg-gray-200' : ''
+        className={`p-2.5 rounded-lg transition-all duration-200 ${
+          isItalic ? 'bg-gray-200 shadow-sm' : 'hover:bg-gray-100'
         }`}
         title="Italic (Ctrl+I)"
         type="button"
@@ -104,8 +104,8 @@ function Toolbar() {
 
       <button
         onClick={() => formatText('underline')}
-        className={`p-2 rounded hover:bg-gray-100 transition ${
-          isUnderline ? 'bg-gray-200' : ''
+        className={`p-2.5 rounded-lg transition-all duration-200 ${
+          isUnderline ? 'bg-gray-200 shadow-sm' : 'hover:bg-gray-100'
         }`}
         title="Underline (Ctrl+U)"
         type="button"
@@ -113,11 +113,11 @@ function Toolbar() {
         <Underline size={18} />
       </button>
 
-      <div className="w-px h-6 bg-gray-300 mx-2"></div>
+      <div className="w-px h-6 bg-gray-300 mx-1"></div>
 
       <button
         onClick={() => formatHeading('h1')}
-        className="p-2 rounded hover:bg-gray-100 transition"
+        className="p-2.5 rounded-lg hover:bg-gray-100 transition-all duration-200"
         title="Heading 1"
         type="button"
       >
@@ -126,7 +126,7 @@ function Toolbar() {
 
       <button
         onClick={() => formatHeading('h2')}
-        className="p-2 rounded hover:bg-gray-100 transition"
+        className="p-2.5 rounded-lg hover:bg-gray-100 transition-all duration-200"
         title="Heading 2"
         type="button"
       >
@@ -135,7 +135,7 @@ function Toolbar() {
 
       <button
         onClick={() => formatHeading('h3')}
-        className="p-2 rounded hover:bg-gray-100 transition"
+        className="p-2.5 rounded-lg hover:bg-gray-100 transition-all duration-200"
         title="Heading 3"
         type="button"
       >
@@ -144,7 +144,7 @@ function Toolbar() {
 
       <button
         onClick={formatParagraph}
-        className="p-2 rounded hover:bg-gray-100 transition"
+        className="p-2.5 rounded-lg hover:bg-gray-100 transition-all duration-200"
         title="Paragraph"
         type="button"
       >
@@ -155,7 +155,7 @@ function Toolbar() {
 
       <button
         onClick={formatBulletList}
-        className="p-2 rounded hover:bg-gray-100 transition"
+        className="p-2.5 rounded-lg hover:bg-gray-100 transition-all duration-200"
         title="Bullet List"
         type="button"
       >
@@ -164,7 +164,7 @@ function Toolbar() {
 
       <button
         onClick={formatNumberedList}
-        className="p-2 rounded hover:bg-gray-100 transition"
+        className="p-2.5 rounded-lg hover:bg-gray-100 transition-all duration-200"
         title="Numbered List"
         type="button"
       >

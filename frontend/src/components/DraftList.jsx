@@ -3,7 +3,11 @@ import useEditorStore from '../store/editorStore';
 import { postsAPI } from '../services/api';
 
 function DraftList() {
-  const { posts, currentPost, setCurrentPost, addPost, setPosts } = useEditorStore();
+  const posts = useEditorStore((state) => state.posts);
+  const currentPost = useEditorStore((state) => state.currentPost);
+  const setCurrentPost = useEditorStore((state) => state.setCurrentPost);
+  const addPost = useEditorStore((state) => state.addPost);
+  const setPosts = useEditorStore((state) => state.setPosts);
 
   const handleCreateNew = async () => {
     try {
@@ -36,12 +40,12 @@ function DraftList() {
   };
 
   return (
-    <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+    <>
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <button
           onClick={handleCreateNew}
-          className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-4 rounded-lg transition flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 ease-in-out flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
         >
           <Plus size={20} />
           New Post
@@ -54,34 +58,33 @@ function DraftList() {
           <div className="p-6 text-center text-gray-500">
             <FileText size={48} className="mx-auto mb-3 text-gray-300" />
             <p className="text-sm">No posts yet</p>
-            <p className="text-xs mt-1">Create your first post</p>
+            <p className="text-xs mt-1 text-gray-400">Create your first post</p>
           </div>
         ) : (
-          <div className="p-2">
+          <div className="p-4 space-y-3">
             {posts.map((post) => (
               <button
                 key={post.id}
                 onClick={() => handleSelectPost(post)}
-                className={`w-full text-left p-3 rounded-lg mb-2 transition ${
+                className={`w-full text-left p-4 rounded-xl transition-all duration-200 ${
                   currentPost?.id === post.id
-                    ? 'bg-primary-50 border-2 border-primary-500'
-                    : 'hover:bg-gray-50 border-2 border-transparent'
+                    ? 'bg-blue-50 border border-blue-400 shadow-sm'
+                    : 'hover:bg-gray-100 border border-transparent'
                 }`}
               >
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-gray-900 truncate mb-1">
+                    <h3 className="font-semibold text-gray-900 truncate mb-2">
                       {post.title || 'Untitled'}
                     </h3>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <span>{formatDate(post.updated_at)}</span>
-                      <span>•</span>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-gray-500">{formatDate(post.updated_at)}</span>
                       <span
-                        className={
+                        className={`px-2 py-1 rounded-full font-medium ${
                           post.status === 'published'
-                            ? 'text-green-600 font-medium'
-                            : 'text-gray-500'
-                        }
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-200 text-gray-600'
+                        }`}
                       >
                         {post.status === 'published' ? 'Published' : 'Draft'}
                       </span>
@@ -91,7 +94,7 @@ function DraftList() {
                     size={16}
                     className={
                       currentPost?.id === post.id
-                        ? 'text-primary-600'
+                        ? 'text-blue-600'
                         : 'text-gray-400'
                     }
                   />
@@ -101,7 +104,7 @@ function DraftList() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
 
