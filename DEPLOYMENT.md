@@ -7,6 +7,8 @@
 ✅ Backend CORS configured for Vercel  
 ✅ Git repository ready: https://github.com/Jayasimha-2005/smart-blog-editor
 
+> **🔒 SECURITY:** Before deploying, review [SECURITY.md](SECURITY.md) for important security guidelines. Never commit secrets to the repository!
+
 ---
 
 ## 🎯 STEP-BY-STEP DEPLOYMENT
@@ -171,8 +173,11 @@ Then redeploy backend on Render.
 
 **Common fixes:**
 - Ensure Root Directory is empty (not "backend")
-- Check environment variables are set (MONGO_URI, JWT_SECRET, GEMINI_API_KEY)
+- Check environment variables are set correctly (MONGO_URI, JWT_SECRET, GEMINI_API_KEY)
+- **IMPORTANT:** Never include actual secret values in render.yaml or code
 - Review build logs for Python errors
+
+> **🔒 Security Tip:** Environment variables should be set in the Render dashboard, not in configuration files. See [SECURITY.md](SECURITY.md) for details.
 
 ### Issue: Frontend build fails on Vercel
 
