@@ -83,12 +83,17 @@ Corrected text:"""
         }
         
         # Make request to Gemini API (using Gemini 2.5 Flash - latest working model)
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+        # Using header-based authentication for better security
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": settings.GEMINI_API_KEY
+        }
         
-        print(f"Calling Gemini API: {url[:100]}...")
+        print("Calling Gemini API [REDACTED]")
         
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, json=payload) as response:
+            async with session.post(url, json=payload, headers=headers) as response:
                 response_text = await response.text()
                 
                 if response.status != 200:
