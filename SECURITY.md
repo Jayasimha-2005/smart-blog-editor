@@ -166,7 +166,7 @@ If you discover exposed secrets in the repository:
 
 If you discover a security vulnerability:
 - **DO NOT** create a public issue
-- Email the maintainer directly: [Your Email Here]
+- Contact the repository owner through GitHub
 - Include detailed information about the vulnerability
 - Allow reasonable time for fixes before public disclosure
 
