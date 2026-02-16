@@ -429,19 +429,23 @@ Frontend will run at: http://localhost:5173
 
 ## 🔐 Environment Variables
 
+> **🔒 SECURITY NOTICE:** Never commit actual secret values to the repository! Always use `.env` files (which are gitignored) or environment variable settings in your deployment platform. See [SECURITY.md](SECURITY.md) for detailed guidelines.
+
 ### Backend (.env)
 
+Copy `backend/.env.example` to `backend/.env` and fill in your actual values:
+
 ```env
-# MongoDB
+# MongoDB - Get connection string from MongoDB Atlas
 MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/
 DATABASE_NAME=smart_blog_editor
 
-# JWT
+# JWT - Generate secure key: openssl rand -hex 32
 JWT_SECRET=your-super-secret-key-min-32-chars
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
-# AI
+# AI - Get API key from https://aistudio.google.com/apikeys
 GEMINI_API_KEY=your-google-gemini-api-key
 
 # App
@@ -452,9 +456,21 @@ DEBUG=False
 
 ### Frontend (.env.production)
 
+Copy `frontend/.env.example` to `frontend/.env` for local development:
+
 ```env
+# Development
+VITE_API_URL=http://127.0.0.1:8000
+
+# Production (set in Vercel dashboard)
 VITE_API_URL=https://smart-blog-editor-2yfb.onrender.com
 ```
+
+**For Production:** Set environment variables in your deployment platforms:
+- **Render (Backend)**: Dashboard → Environment tab
+- **Vercel (Frontend)**: Project Settings → Environment Variables
+
+See [SECURITY.md](SECURITY.md) for complete security guidelines.
 
 ---
 
@@ -493,14 +509,17 @@ const token = useAuthStore((state) => state.token);
 ## 🔒 Production Considerations
 
 ### Security
-✅ JWT tokens with 30-minute expiration
-✅ Bcrypt password hashing (cost factor: 12)
-✅ CORS restricted to specific origins
-✅ MongoDB connection with authentication
-✅ Environment variables for secrets
-✅ Input validation via Pydantic models
-⚠️ TODO: Rate limiting on API endpoints
-⚠️ TODO: HTTPS enforcement in production
+✅ JWT tokens with 30-minute expiration  
+✅ Bcrypt password hashing (cost factor: 12)  
+✅ CORS restricted to specific origins  
+✅ MongoDB connection with authentication  
+✅ Environment variables for all secrets (never hardcoded)  
+✅ Input validation via Pydantic models  
+✅ `.env` files properly gitignored  
+⚠️ TODO: Rate limiting on API endpoints  
+⚠️ TODO: HTTPS enforcement in production  
+
+> **📖 Read More:** Complete security guidelines in [SECURITY.md](SECURITY.md)
 
 ### Performance
 ✅ Async/await throughout backend
